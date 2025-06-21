@@ -9,7 +9,8 @@ const PORT = process.env.PORT || 3000;
 const TOKEN = '7527972243:AAEwyICMlz0gLDhxNrVb5UilaZ2PLlUFIBw'; // your bot token
 const TELEGRAM_CHAT_ID = '7342429597';
  // <-- you’ll get this below
-const serviceAccount = require('./my-firebase-key.json');
+const serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG);
+
 
 // ✅ Firebase Setup
 admin.initializeApp({
