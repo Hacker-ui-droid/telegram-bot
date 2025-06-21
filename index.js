@@ -30,22 +30,19 @@ db.ref('messages').on('child_added', (snapshot) => {
 });
 
 // ✅ Webhook Route (optional, in case user still messages bot)
-app.use(bodyParser.json());
-
 app.post('/webhook', (req, res) => {
   const msg = req.body.message;
-  if (msg && msg.chat && msg.text) {
-    console.log("Chat ID:", msg.chat.id); // Copy this value for TELEGRAM_CHAT_ID
-    axios.post(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
 
-      chat_id: msg.chat.id,
-      text: `You said: ${msg.text}`
-    });
+  if (msg && msg.chat && msg.text) {
+    const chatId = msg.chat.id;
+
+    // Send the chat ID back to the user
+    axios.post(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
+      chat_id: chatId,
+      text: `✅ Your Telegram Chat ID is: ${chatId}`
+    }).catch(err => console.error('Telegram Error:', err.message));
   }
+
   res.sendStatus(200);
 });
 
-// ✅ Start Server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
