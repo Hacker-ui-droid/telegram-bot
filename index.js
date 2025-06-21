@@ -4,7 +4,8 @@ const axios = require('axios');
 const app = express();
 app.use(express.json());
 
-const TOKEN = 'YOUR_BOT_TOKEN'; // replace with your real token
+const TOKEN = '7527972243:AAEwyICMlz0gLDhxNrVb5UilaZ2PLlUFIBw';
+ // replace with your real token
 const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
 
 app.post('/webhook', async (req, res) => {
