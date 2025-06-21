@@ -7,10 +7,8 @@ const PORT = process.env.PORT || 3000;
 
 // ✅ Replace these:
 const TOKEN = '7527972243:AAEwyICMlz0gLDhxNrVb5UilaZ2PLlUFIBw'; // your bot token
-const TELEGRAM_CHAT_ID = '7342429597';
- // <-- you’ll get this below
+const TELEGRAM_CHAT_ID = '7342429597'; // your Telegram user ID
 const serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG);
-
 
 // ✅ Firebase Setup
 admin.initializeApp({
@@ -31,14 +29,14 @@ db.ref('messages').on('child_added', (snapshot) => {
   }).catch(err => console.error('Telegram Error:', err.message));
 });
 
-// ✅ Webhook Route (optional, in case user still messages bot)
+// ✅ Webhook Route (optional)
+app.use(bodyParser.json());
 app.post('/webhook', (req, res) => {
   const msg = req.body.message;
 
   if (msg && msg.chat && msg.chat.id) {
     const chatId = msg.chat.id;
 
-    // ✅ Send the chat ID to the user
     axios.post(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
       chat_id: chatId,
       text: `✅ Your Telegram Chat ID is: ${chatId}`
@@ -46,4 +44,9 @@ app.post('/webhook', (req, res) => {
   }
 
   res.sendStatus(200);
+});
+
+// ✅ Start the server
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running on port ${PORT}`);
 });
