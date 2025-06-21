@@ -33,10 +33,10 @@ db.ref('messages').on('child_added', (snapshot) => {
 app.post('/webhook', (req, res) => {
   const msg = req.body.message;
 
-  if (msg && msg.chat && msg.text) {
+  if (msg && msg.chat && msg.chat.id) {
     const chatId = msg.chat.id;
 
-    // Send the chat ID back to the user
+    // ✅ Send the chat ID to the user
     axios.post(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
       chat_id: chatId,
       text: `✅ Your Telegram Chat ID is: ${chatId}`
@@ -45,4 +45,3 @@ app.post('/webhook', (req, res) => {
 
   res.sendStatus(200);
 });
-
