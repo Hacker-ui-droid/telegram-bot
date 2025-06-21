@@ -7,13 +7,14 @@ const PORT = process.env.PORT || 3000;
 
 // ✅ Replace these:
 const TOKEN = '7527972243:AAEwyICMlz0gLDhxNrVb5UilaZ2PLlUFIBw'; // your bot token
-const TELEGRAM_CHAT_ID = 'YOUR_TELEGRAM_CHAT_ID'; // <-- you’ll get this below
-const serviceAccount = require('./your-firebase-key.json'); // path to downloaded JSON
+const TELEGRAM_CHAT_ID = '7342429597';
+ // <-- you’ll get this below
+const serviceAccount = require('./my-firebase-key.json');
 
 // ✅ Firebase Setup
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: 'https://your-project-id.firebaseio.com'
+  databaseURL: 'https://fishing-16540-default-rtdb.firebaseio.com'
 });
 
 const db = admin.database();
