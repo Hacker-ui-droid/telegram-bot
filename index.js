@@ -8,13 +8,20 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ✅ Telegram Bot Setup
-const TOKEN = '7527972243:AAEwyICMlz0gLDhxNrVb5UilaZ2PLlUFIBw'; // your bot token
-const TELEGRAM_CHAT_ID = '7342429597'; // your Telegram user ID
+const TOKEN = '7527972243:AAEwyICMlz0gLDhxNrVb5UilaZ2PLlUFIBw';
+const TELEGRAM_CHAT_ID = '7342429597';
 
 // ✅ Load Firebase credentials from secret file
-const serviceAccount = JSON.parse(
-  fs.readFileSync(path.join(__dirname, 'firebase-key.json'))
-);
+let serviceAccount;
+try {
+  const keyPath = path.join(__dirname, 'firebase-key.json');
+  const keyFile = fs.readFileSync(keyPath, 'utf8');
+  serviceAccount = JSON.parse(keyFile);
+  console.log('🔑 Loaded Firebase service account from secret file');
+} catch (err) {
+  console.error('❌ Failed to load firebase-key.json:', err);
+  process.exit(1);
+}
 
 // ✅ Middleware
 app.use(bodyParser.json());
@@ -26,39 +33,34 @@ admin.initializeApp({
 });
 
 const db = admin.database();
-console.log("✅ Firebase initialized");
+console.log('✅ Firebase initialized');
 
 // ✅ Realtime Database Listener
 db.ref('messages').on('child_added', (snapshot) => {
   const newData = snapshot.val();
-  const message = `🆕 New Firebase Entry:\n${JSON.stringify(newData, null, 2)}`;
-  console.log("📩 New message from Firebase:");
-  console.log(newData);
+  console.log('📩 New message from Firebase:', newData);
 
+  const message = `🆕 New Firebase Entry:\n${JSON.stringify(newData, null, 2)}`;
   axios.post(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
     chat_id: TELEGRAM_CHAT_ID,
     text: message
-  }).then(() => {
-    console.log("✅ Sent message to Telegram");
-  }).catch(err => {
-    console.error('❌ Telegram Error:', err.message);
-  });
+  })
+  .then(() => console.log('✅ Sent message to Telegram'))
+  .catch(err => console.error('❌ Telegram Error:', err.message));
 });
 
 // ✅ Webhook Route (Optional)
 app.post('/webhook', (req, res) => {
   const msg = req.body.message;
-
   if (msg && msg.chat && msg.chat.id) {
     const chatId = msg.chat.id;
-    console.log("📲 Webhook triggered by:", msg.text);
-
+    console.log('📲 Webhook triggered by:', msg.text);
     axios.post(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
       chat_id: chatId,
       text: `✅ Your Telegram Chat ID is: ${chatId}`
-    }).catch(err => console.error('❌ Telegram Error:', err.message));
+    })
+    .catch(err => console.error('❌ Telegram Error:', err.message));
   }
-
   res.sendStatus(200);
 });
 
