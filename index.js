@@ -7,35 +7,36 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ Telegram Bot Setup
+// Telegram Bot Setup
 const TOKEN = '7527972243:AAEwyICMlz0gLDhxNrVb5UilaZ2PLlUFIBw';
 const TELEGRAM_CHAT_ID = '7342429597';
 
-// ✅ Load Firebase credentials from secret file
+// Try to load firebase-key.json from project root or /etc/secrets
 let serviceAccount;
+const localPath = path.join(__dirname, 'firebase-key.json');
+const secretPath = '/etc/secrets/firebase-key.json';
 try {
-  const keyPath = path.join(__dirname, 'firebase-key.json');
-  const keyFile = fs.readFileSync(keyPath, 'utf8');
+  const filePath = fs.existsSync(localPath) ? localPath : secretPath;
+  const keyFile = fs.readFileSync(filePath, 'utf8');
   serviceAccount = JSON.parse(keyFile);
-  console.log('🔑 Loaded Firebase service account from secret file');
+  console.log(`🔑 Loaded Firebase key from ${filePath}`);
 } catch (err) {
-  console.error('❌ Failed to load firebase-key.json:', err);
+  console.error('❌ Failed to load firebase-key.json from either location:', err);
   process.exit(1);
 }
 
-// ✅ Middleware
+// Middleware
 app.use(bodyParser.json());
 
-// ✅ Firebase Setup
+// Firebase Setup
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: 'https://fishing-16540-default-rtdb.firebaseio.com'
 });
-
 const db = admin.database();
 console.log('✅ Firebase initialized');
 
-// ✅ Realtime Database Listener
+// Realtime Database Listener
 db.ref('messages').on('child_added', (snapshot) => {
   const newData = snapshot.val();
   console.log('📩 New message from Firebase:', newData);
@@ -49,7 +50,7 @@ db.ref('messages').on('child_added', (snapshot) => {
   .catch(err => console.error('❌ Telegram Error:', err.message));
 });
 
-// ✅ Webhook Route (Optional)
+// Webhook Route (Optional)
 app.post('/webhook', (req, res) => {
   const msg = req.body.message;
   if (msg && msg.chat && msg.chat.id) {
@@ -64,12 +65,12 @@ app.post('/webhook', (req, res) => {
   res.sendStatus(200);
 });
 
-// ✅ Health check route
+// Health check route
 app.get('/', (req, res) => {
   res.send('✅ Bot is alive and connected to Firebase!');
 });
 
-// ✅ Start Server
+// Start Server
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
 });
