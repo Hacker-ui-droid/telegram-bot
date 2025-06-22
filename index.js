@@ -2,6 +2,8 @@ const express = require('express');
 const axios = require('axios');
 const admin = require('firebase-admin');
 const bodyParser = require('body-parser');
+const fs = require('fs');
+const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -9,8 +11,10 @@ const PORT = process.env.PORT || 3000;
 const TOKEN = '7527972243:AAEwyICMlz0gLDhxNrVb5UilaZ2PLlUFIBw'; // your bot token
 const TELEGRAM_CHAT_ID = '7342429597'; // your Telegram user ID
 
-// ✅ Load Firebase credentials from Render environment
-const serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG);
+// ✅ Load Firebase credentials from secret file
+const serviceAccount = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'firebase-key.json'))
+);
 
 // ✅ Middleware
 app.use(bodyParser.json());
@@ -28,7 +32,7 @@ console.log("✅ Firebase initialized");
 db.ref('messages').on('child_added', (snapshot) => {
   const newData = snapshot.val();
   const message = `🆕 New Firebase Entry:\n${JSON.stringify(newData, null, 2)}`;
-  console.log("📩 New message detected from Firebase:");
+  console.log("📩 New message from Firebase:");
   console.log(newData);
 
   axios.post(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
